@@ -1,0 +1,68 @@
+server:
+  port: 8080
+  servlet:
+    contextPath: /vwap-calculator/v1
+
+spring:
+  application:
+    name: vwap-calculator
+  profiles:
+    include: 'default'
+  main:
+    banner-mode: 'off'
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+  threads:
+    virtual:
+      enabled=true:
+        max: 10
+        core: 5
+
+
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      bootstrap-servers: localhost:29092
+      group-id: myGroupId
+      topic: myTopic
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.add.type.headers: false
+        spring.json.value.default.type: dev.amir.vwap_calculator.consumer.data.PriceData
+        spring.json.trusted.packages: dev.amir.vwap_calculator.consumer.data.PriceData
+        spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+
+    producer:
+      acks: -1
+      bootstrap-servers: localhost:29092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+        spring.json.value.default.type: dev.amir.vwap_calculator.consumer.data.PriceData
+        spring.json.trusted.packages: dev.amir.vwap_calculator.consumer.data.PriceData
+
+
+  datasource:
+    url: jdbc:h2:mem:mydb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    platform: h2
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+intermediate-processor:
+  window-duration-minutes: 1
+
+final-processor:
+  interval: 120000 # (1 hour, 3600000 milliseconds) OR (2 minutes, 120000 milliseconds)
+
